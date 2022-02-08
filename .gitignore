@@ -15,8 +15,6 @@
 *.iws
 .idea/
 
-../genshin
-
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
@@ -32,6 +30,8 @@
 .pub-cache/
 .pub/
 /build/
+
+genshin
 
 # Web related
 lib/generated_plugin_registrant.dart
