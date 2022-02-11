@@ -1,14 +1,14 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goose_ui/goose_ui.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:rain_bow_genshin_voices/enum.dart';
-import 'package:rain_bow_genshin_voices/extension/list_ext.dart';
+import 'package:provider/provider.dart';
 import 'package:rain_bow_genshin_voices/models/mainfest_model.dart';
 import 'package:rain_bow_genshin_voices/models/voice_info_model.dart';
-import 'package:rain_bow_genshin_voices/user_map.dart';
+import 'package:rain_bow_genshin_voices/providers/role_data.dart';
+import 'package:rain_bow_genshin_voices/tools/enum.dart';
+import 'package:rain_bow_genshin_voices/tools/extension/list_ext.dart';
+import 'package:rain_bow_genshin_voices/tools/user_map.dart';
 
 class VoicePage extends StatefulWidget {
   const VoicePage({Key? key}) : super(key: key);
@@ -27,7 +27,8 @@ class _VoicePageState extends State<VoicePage> {
       _voices[_selectRole].titles.indexWhere((element) =>
           element.text == mainfestModel.contributes[cindex].titles[index]);
 
-  List<VoiceInfoModel> _voices = [];
+  List<VoiceInfoModel> get _voices =>
+      Provider.of<RoleData>(context, listen: false).list;
   MainfestModel mainfestModel = MainfestModel.init();
   final TextEditingController _editingController = TextEditingController();
 
@@ -40,12 +41,12 @@ class _VoicePageState extends State<VoicePage> {
   @override
   void initState() {
     Future.delayed(const Duration(milliseconds: 0), () async {
-      AssetBundle bundle = DefaultAssetBundle.of(context);
-      String data = await bundle.loadString('assets/voice.json');
-      _voices = (jsonDecode(data) as List)
-          .map((e) => VoiceInfoModel.fromJson(e))
-          .toList();
-      setState(() {});
+      // AssetBundle bundle = DefaultAssetBundle.of(context);
+      // String data = await bundle.loadString('assets/voice.json');
+      // _voices = (jsonDecode(data) as List)
+      //     .map((e) => VoiceInfoModel.fromJson(e))
+      //     .toList();
+      // setState(() {});
     });
     super.initState();
   }
@@ -235,31 +236,12 @@ class _VoicePageState extends State<VoicePage> {
             mainfestModel.languages.length,
             (index) => GestureDetector(
                   onLongPress: () async {
-                    var result = await showCupertinoDialog(
-                      barrierDismissible: true,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return CupertinoAlertDialog(
-                          title: Text(
-                            '是否删除？',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          actions: [
-                            CupertinoDialogAction(
-                              child: Text(
-                                '确定',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              onPressed: () {
-                                mainfestModel.languages.removeAt(index);
-                                Navigator.pop(context);
-                                setState(() {});
-                              },
-                            )
-                          ],
-                        );
-                      },
-                    );
+                    var result = false;
+                    result = await buildShowCupertinoDialog(context);
+                    if (result) {
+                      mainfestModel.languages.removeAt(index);
+                      setState(() {});
+                    }
                   },
                   child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -334,6 +316,32 @@ class _VoicePageState extends State<VoicePage> {
         ));
   }
 
+  Future<dynamic> buildShowCupertinoDialog(BuildContext context) {
+    return showCupertinoDialog(
+      barrierDismissible: true,
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text(
+            '是否删除？',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          actions: [
+            CupertinoDialogAction(
+              child: Text(
+                '确定',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
   Widget buildContribute(int cindex) {
     return Container(
       padding: const EdgeInsets.all(8),
@@ -377,16 +385,26 @@ class _VoicePageState extends State<VoicePage> {
           const SizedBox(height: 20),
           Row(
             children: mainfestModel.contributes[cindex].keywords
-                .map((e) => Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: Colors.blueAccent.withOpacity(0.25)),
-                    child: Text(
-                      e,
-                      style: Theme.of(context).textTheme.button,
-                    )))
+                .map((e) => GestureDetector(
+                      onLongPress: () async {
+                        var result = false;
+                        result = await buildShowCupertinoDialog(context);
+                        if (result) {
+                          mainfestModel.contributes[cindex].keywords.remove(e);
+                          setState(() {});
+                        }
+                      },
+                      child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 8),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              color: Colors.blueAccent.withOpacity(0.25)),
+                          child: Text(
+                            e,
+                            style: Theme.of(context).textTheme.button,
+                          )),
+                    ))
                 .toList()
                 .sepWidget(
                     separate: const SizedBox(
@@ -452,12 +470,9 @@ class _VoicePageState extends State<VoicePage> {
               ),
               IconButton(
                   onPressed: () async {
-                    // await player.setFilePath(_voices[_selectRole]
-                    //     .titles[_selectTitle(cindex, index)]
-                    //     .voices[_selectLan.index]);
-                    // await player.play();
-                    await player.setUrl(
-                        'https://saas.kaidalai.cn/resource/123456/5d143e1b735b0.mp3');
+                    await player.setUrl(_voices[_selectRole]
+                        .titles[_selectTitle(cindex, index)]
+                        .voices[_selectLan.index]);
                     await player.play();
                   },
                   icon: const Icon(Icons.volume_up)),

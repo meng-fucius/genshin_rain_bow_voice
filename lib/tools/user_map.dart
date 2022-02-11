@@ -1,4 +1,4 @@
-import 'package:rain_bow_genshin_voices/enum.dart';
+import 'package:rain_bow_genshin_voices/tools/enum.dart';
 
 class UserMap {
   static language(Language language) {

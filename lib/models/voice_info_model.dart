@@ -1,7 +1,19 @@
+import 'package:hive/hive.dart';
+
+part 'voice_info_model.g.dart';
+
+@HiveType(typeId: 0)
 class VoiceInfoModel {
+  @HiveField(0)
   late String name;
+
+  @HiveField(1)
   late String enName;
+  @HiveField(2)
   late List<Titles> titles;
+
+  static VoiceInfoModel init() =>
+      VoiceInfoModel(name: '', enName: '', titles: []);
 
   VoiceInfoModel(
       {required this.name, required this.enName, required this.titles});
@@ -26,9 +38,15 @@ class VoiceInfoModel {
   }
 }
 
+@HiveType(typeId: 1)
 class Titles {
+  @HiveField(0)
   late String text;
+
+  @HiveField(1)
   late List<String> voices;
+
+  @HiveField(2)
   late String content;
 
   Titles({required this.text, required this.voices, required this.content});

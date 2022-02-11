@@ -7,7 +7,9 @@ import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:rain_bow_genshin_voices/pages/key_tool_page.dart';
 import 'package:rain_bow_genshin_voices/pages/voice_page.dart';
+import 'package:rain_bow_genshin_voices/providers/role_data.dart';
 import 'package:rain_bow_genshin_voices/providers/theme_manager.dart';
+import 'package:rain_bow_genshin_voices/tools/hive_util.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
@@ -22,9 +24,11 @@ void main() async {
     await windowManager.show();
     await windowManager.setSkipTaskbar(false);
   });
+  await HiveUtil.init();
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => ThemeManager()),
+      ChangeNotifierProvider(create: (context) => RoleData()),
     ],
     child: const MyApp(),
   ));
@@ -64,6 +68,14 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
   @override
   void onWindowFocus() {
     setState(() {});
+  }
+
+  @override
+  void initState() {
+    Future.delayed(const Duration(milliseconds: 0), () async {
+      Provider.of<RoleData>(context, listen: false).init();
+    });
+    super.initState();
   }
 
   @override
