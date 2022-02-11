@@ -40,10 +40,10 @@ class Titles {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['text'] = this.text;
-    data['voices'] = this.voices;
-    data['content'] = this.content;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['text'] = text;
+    data['voices'] = voices;
+    data['content'] = content;
     return data;
   }
 }

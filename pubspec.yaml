@@ -32,6 +32,18 @@ dependencies:
   goose_ui:
     path: ../goose_ui/packages/goose_ui
   animations: ^2.0.2
+  #音频播放
+  just_audio: ^0.9.19
+  just_audio_platform_interface: ^4.1.0
+  just_audio_libwinmedia: ^0.0.4
+  #吐司
+  bot_toast: ^4.0.1
+  #热键管理（全局热键
+  hotkey_manager: ^0.1.6
+  #管理窗口大小
+  window_manager: ^0.1.5
+  #状态管理
+  provider: ^6.0.2
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -60,9 +72,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-    # To add assets to your application, add an assets section, like this:
+  # To add assets to your application, add an assets section, like this:
   assets:
-    - voice.json
+    - assets/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

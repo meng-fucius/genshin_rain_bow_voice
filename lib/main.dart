@@ -1,10 +1,33 @@
 import 'package:animations/animations.dart';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goose_ui/goose_ui.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:provider/provider.dart';
+import 'package:rain_bow_genshin_voices/pages/key_tool_page.dart';
+import 'package:rain_bow_genshin_voices/pages/voice_page.dart';
+import 'package:rain_bow_genshin_voices/providers/theme_manager.dart';
+import 'package:window_manager/window_manager.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  hotKeyManager.unregisterAll();
+  await windowManager.ensureInitialized();
+  windowManager.waitUntilReadyToShow().then((_) async {
+    // Hide window title bar
+    await windowManager.setTitleBarStyle('hidden');
+    await windowManager.setSize(const Size(1080, 720));
+    await windowManager.center();
+    await windowManager.show();
+    await windowManager.setSkipTaskbar(false);
+  });
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => ThemeManager()),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -14,7 +37,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'GenshinVoices',
-      theme: ThemeData.light(),
+      builder: BotToastInit(),
+      navigatorObservers: [BotToastNavigatorObserver()],
+      theme: Provider.of<ThemeManager>(context).themeData,
       home: const MyHomePage(),
     );
   }
@@ -27,7 +52,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WindowListener {
   int _currentIndex = 0;
 
   final List<GAppMenuItem> _menus = [
@@ -37,14 +62,16 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
 
   @override
+  void onWindowFocus() {
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GScaffold(
         appTitleBar: const GAppBar(),
         drawer: GAppMenu(
             onPressed: (item) async {
-              AssetBundle bundle = DefaultAssetBundle.of(context);
-              String data = await bundle.loadString('voice.json');
-              print(data);
               _currentIndex = _menus.indexOf(item);
               setState(() {});
             },
@@ -58,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
               transitionType: SharedAxisTransitionType.vertical,
             );
           },
-          child: [Text('111'), Text('222')][_currentIndex],
+          child: [const VoicePage(), const KeyToolPage()][_currentIndex],
         ));
   }
 }
