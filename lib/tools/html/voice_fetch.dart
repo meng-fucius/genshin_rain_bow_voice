@@ -72,4 +72,42 @@ class VoiceFetch {
     var subTitle = spans[11].replaceAll('\n', '');
     return [title, zh, jp, en, kr, subTitle];
   }
+
+  Future getAvatar(String name) async {
+    var res =
+        await Dio().get('https://wiki.biligame.com/ys/%E8%A7%92%E8%89%B2');
+
+    var document = parse(res.data.toString());
+    var elements = document.getElementsByClassName('floatnone');
+    if (elements.isEmpty) {
+      return null;
+    }
+    final aElement = elements.first.getElementsByTagName('a');
+    if (aElement.isEmpty) {
+      return null;
+    }
+    final name = aElement.first.attributes['title'];
+    final img = aElement.first.getElementsByTagName('img');
+    final imgPath = img.first.attributes['src'];
+    print('$name,$imgPath');
+  }
+
+  Future getVoices() async {
+    var res = await Dio().get('https://wiki.biligame.com/ys/神里绫华语音');
+    var document = parse(res.data.toString());
+    var elements = document.getElementsByClassName('wikitable');
+    var tElement = elements[2].getElementsByTagName('tr');
+    print(tElement.length);
+    var title = tElement.first.text.replaceAll('\n', '').trim();
+    print(title);
+    var vElement = tElement[2].getElementsByTagName('td');
+    var voiceElement = vElement.first.getElementsByTagName('div');
+    print(voiceElement.length);
+    var voicePath = voiceElement.first.attributes['data-src'];
+    print(voicePath);
+    var div = voiceElement.first
+        .getElementsByClassName('bikited-audio default-player');
+    print(div.length);
+    print(div.first.attributes['src']);
+  }
 }
