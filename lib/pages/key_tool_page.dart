@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:rain_bow_genshin_voices/models/role_model.dart';
 import 'package:rain_bow_genshin_voices/providers/role_data.dart';
 import 'package:rain_bow_genshin_voices/providers/theme_manager.dart';
-import 'package:rain_bow_genshin_voices/tools/html/voice_fetch.dart';
 
 class KeyToolPage extends StatefulWidget {
   const KeyToolPage({Key? key}) : super(key: key);
@@ -54,7 +53,7 @@ class _KeyToolPageState extends State<KeyToolPage> {
                     GSwitch(
                         value: Theme.of(context).brightness == Brightness.dark,
                         onChanged: (value) {
-                          themeManager.changeTheme(value, context);
+                          themeManager.changeTheme(value);
                           setState(() {});
                         })
                   ],
@@ -146,8 +145,7 @@ class _KeyToolPageState extends State<KeyToolPage> {
                 borderRadius: BorderRadius.circular(8),
               ),
               onPressed: () async {
-                // await roleData.updateAllVoice();
-                VoiceFetch().getVoices();
+                await roleData.updateAllVoice();
               },
               child: Align(
                 alignment: Alignment.centerLeft,

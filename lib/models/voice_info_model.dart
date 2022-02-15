@@ -11,16 +11,16 @@ class VoiceInfoModel {
   late String enName;
   @HiveField(2)
   late List<Titles> titles;
+  @HiveField(3)
+  late String avatar;
 
   static VoiceInfoModel init() =>
-      VoiceInfoModel(name: '', enName: '', titles: []);
-
-  VoiceInfoModel(
-      {required this.name, required this.enName, required this.titles});
+      VoiceInfoModel(name: '', enName: '', titles: [], avatar: '');
 
   VoiceInfoModel.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     enName = json['en_name'];
+    avatar = json['avatar'];
     if (json['titles'] != null) {
       titles = <Titles>[];
       json['titles'].forEach((v) {
@@ -33,9 +33,17 @@ class VoiceInfoModel {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['name'] = name;
     data['en_name'] = enName;
+    data['avatar'] = avatar;
     data['titles'] = titles.map((v) => v.toJson()).toList();
     return data;
   }
+
+  VoiceInfoModel({
+    required this.name,
+    required this.enName,
+    required this.titles,
+    required this.avatar,
+  });
 }
 
 @HiveType(typeId: 1)

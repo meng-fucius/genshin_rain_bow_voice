@@ -20,19 +20,22 @@ class VoiceInfoModelAdapter extends TypeAdapter<VoiceInfoModel> {
       name: fields[0] as String,
       enName: fields[1] as String,
       titles: (fields[2] as List).cast<Titles>(),
+      avatar: fields[3] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, VoiceInfoModel obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
       ..write(obj.enName)
       ..writeByte(2)
-      ..write(obj.titles);
+      ..write(obj.titles)
+      ..writeByte(3)
+      ..write(obj.avatar);
   }
 
   @override

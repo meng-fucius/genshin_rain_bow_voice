@@ -12,6 +12,7 @@ class VoiceFetch {
     Response res;
     try {
       res = await Dio().get('https://wiki.biligame.com/ys/${role.zhName}语音');
+      await Future.delayed(const Duration(milliseconds: 500));
     } catch (e) {
       if (kDebugMode) {
         print(e.toString());
@@ -20,94 +21,53 @@ class VoiceFetch {
       }
       return null;
     }
+    var avatar = await getAvatar(role.zhName);
+    await Future.delayed(const Duration(milliseconds: 500));
     VoiceInfoModel _voiceInfo = VoiceInfoModel.init();
     _voiceInfo.name = role.zhName;
     _voiceInfo.enName = role.enName;
+    _voiceInfo.avatar = avatar;
     var document = parse(res.data.toString());
     var elements = document.getElementsByClassName('wikitable');
-    RegExp reg = RegExp(r'data-src="(.*?)"');
-    var matches = reg.allMatches(document.outerHtml);
-    List<String> links = matches.map((e) => e.group(1).toString()).toList();
-    links = links.toSet().toList();
-    var count = 0;
-
-    try {
-      if (elements.length > 2) {
-        for (var i = 2; i < elements.length; i++) {
-          var strs = textParse(elements[i].text);
-          var _voList = <String>[];
-          for (var j = 0; j < 4; j++) {
-            _voList.add(links[count]);
-            count++;
-          }
-          _voiceInfo.titles.add(Titles(
-              text: strs[0].trim(), voices: _voList, content: strs[5].trim()));
-        }
-      } else {
-        if (kDebugMode) {
-          print('${role.zhName} 错误');
+    for (var i = 2; i < elements.length; i++) {
+      Titles _voiceTitle = Titles(text: '', voices: [], content: '');
+      var tElement = elements[i].getElementsByTagName('tr');
+      _voiceTitle.text = tElement.first.text.replaceAll('\n', '').trim();
+      _voiceTitle.content = tElement.last.text.replaceAll('\n', '').trim();
+      var vElement = tElement[2].getElementsByTagName('td');
+      for (var j = 0; j < 4; j++) {
+        var voiceElement = vElement[j].getElementsByTagName('div');
+        var voicePath = voiceElement.first.attributes['data-src'];
+        if (voicePath != null) {
+          _voiceTitle.voices.add(voicePath);
         } else {
-          BotToast.showText(text: '${role.zhName}语音错误');
+          _voiceTitle.voices.add('');
+        }
+      }
+      _voiceInfo.titles.add(_voiceTitle);
+    }
+    return _voiceInfo;
+  }
+
+  Future getAvatar(String name) async {
+    try {
+      var res =
+          await Dio().get('https://wiki.biligame.com/ys/%E8%A7%92%E8%89%B2');
+      var document = parse(res.data.toString());
+      var elements = document.getElementsByClassName('home-box-tag');
+      final aElements =
+          elements.map((e) => e.getElementsByTagName('a')).toList();
+      for (var item in aElements) {
+        if (item.first.attributes['title'] == name) {
+          return item[0].getElementsByTagName('img').first.attributes['src'];
         }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('${role.zhName}角色语音缺失');
+        print(e.toString());
       } else {
-        BotToast.showText(text: '${role.zhName}角色语音缺失');
+        BotToast.showText(text: '$name头像获取失败');
       }
-      return null;
     }
-
-    return _voiceInfo;
-  }
-
-  List<String> textParse(String body) {
-    var spans = body.split('\n\n');
-    var title = spans[1];
-    var zh = spans[2].replaceAll('\n', '');
-    var jp = spans[3].replaceAll('\n', '');
-    var en = spans[4].replaceAll('\n', '');
-    var kr = spans[5].replaceAll('\n', '');
-    var subTitle = spans[11].replaceAll('\n', '');
-    return [title, zh, jp, en, kr, subTitle];
-  }
-
-  Future getAvatar(String name) async {
-    var res =
-        await Dio().get('https://wiki.biligame.com/ys/%E8%A7%92%E8%89%B2');
-
-    var document = parse(res.data.toString());
-    var elements = document.getElementsByClassName('floatnone');
-    if (elements.isEmpty) {
-      return null;
-    }
-    final aElement = elements.first.getElementsByTagName('a');
-    if (aElement.isEmpty) {
-      return null;
-    }
-    final name = aElement.first.attributes['title'];
-    final img = aElement.first.getElementsByTagName('img');
-    final imgPath = img.first.attributes['src'];
-    print('$name,$imgPath');
-  }
-
-  Future getVoices() async {
-    var res = await Dio().get('https://wiki.biligame.com/ys/神里绫华语音');
-    var document = parse(res.data.toString());
-    var elements = document.getElementsByClassName('wikitable');
-    var tElement = elements[2].getElementsByTagName('tr');
-    print(tElement.length);
-    var title = tElement.first.text.replaceAll('\n', '').trim();
-    print(title);
-    var vElement = tElement[2].getElementsByTagName('td');
-    var voiceElement = vElement.first.getElementsByTagName('div');
-    print(voiceElement.length);
-    var voicePath = voiceElement.first.attributes['data-src'];
-    print(voicePath);
-    var div = voiceElement.first
-        .getElementsByClassName('bikited-audio default-player');
-    print(div.length);
-    print(div.first.attributes['src']);
   }
 }
