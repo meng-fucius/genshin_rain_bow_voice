@@ -40,14 +40,7 @@ class _VoicePageState extends State<VoicePage> {
 
   @override
   void initState() {
-    Future.delayed(const Duration(milliseconds: 0), () async {
-      // AssetBundle bundle = DefaultAssetBundle.of(context);
-      // String data = await bundle.loadString('assets/voice.json');
-      // _voices = (jsonDecode(data) as List)
-      //     .map((e) => VoiceInfoModel.fromJson(e))
-      //     .toList();
-      // setState(() {});
-    });
+    Future.delayed(const Duration(milliseconds: 0), () async {});
     super.initState();
   }
 
@@ -96,6 +89,9 @@ class _VoicePageState extends State<VoicePage> {
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
+        _selectRole == -1
+            ? const SizedBox.shrink()
+            : Image.network(_voices[_selectRole].avatar, width: 60, height: 60),
         GSelectButton<String>(
             titleBuilder: (value) {
               return value!;

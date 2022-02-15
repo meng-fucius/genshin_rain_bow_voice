@@ -54,7 +54,7 @@ class VoiceFetch {
       var res =
           await Dio().get('https://wiki.biligame.com/ys/%E8%A7%92%E8%89%B2');
       var document = parse(res.data.toString());
-      var elements = document.getElementsByClassName('home-box-tag');
+      var elements = document.getElementsByClassName('home-box-tag-1');
       final aElements =
           elements.map((e) => e.getElementsByTagName('a')).toList();
       for (var item in aElements) {

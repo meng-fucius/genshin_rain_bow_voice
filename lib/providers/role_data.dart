@@ -36,6 +36,7 @@ class RoleData extends ChangeNotifier {
   }
 
   Future updateVoice() async {
+    var cancel = BotToast.showLoading();
     var errorIndex = [];
     for (var item in _roles) {
       if (_containRole(item.zhName)) {
@@ -55,10 +56,12 @@ class RoleData extends ChangeNotifier {
         _roles.remove(item);
       }
     }
+    cancel();
     notifyListeners();
   }
 
   Future updateAllVoice() async {
+    var cancel = BotToast.showLoading();
     _list.clear();
     var errorIndex = [];
     for (var item in _roles) {
@@ -77,6 +80,7 @@ class RoleData extends ChangeNotifier {
     HiveUtil.dataBox!.clear();
     HiveUtil.dataBox!.addAll(_list);
     BotToast.showText(text: '已更新所有角色');
+    cancel();
     notifyListeners();
   }
 
