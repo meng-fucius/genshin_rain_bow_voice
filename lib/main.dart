@@ -60,9 +60,10 @@ class _MyHomePageState extends State<MyHomePage> with WindowListener {
   int _currentIndex = 0;
 
   final List<GAppMenuItem> _menus = [
-    const GAppMenuItem(
-        icon: CupertinoIcons.volume_up, title: '语音', children: []),
-    const GAppMenuItem(icon: CupertinoIcons.selection_pin_in_out, title: '选项'),
+    GAppMenuItem(
+        icon: CupertinoIcons.volume_up, title: (context) => '语音', children: []),
+    GAppMenuItem(
+        icon: CupertinoIcons.selection_pin_in_out, title: (context) => '选项'),
   ];
 
   @override
