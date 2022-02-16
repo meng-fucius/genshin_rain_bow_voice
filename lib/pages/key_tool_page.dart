@@ -33,128 +33,130 @@ class _KeyToolPageState extends State<KeyToolPage> {
   Widget build(BuildContext context) {
     final themeManager = Provider.of<ThemeManager>(context);
     final roleData = Provider.of<RoleData>(context);
+    var dark = buildTile(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '深色模式',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(
+              width: 20,
+            ),
+            GSwitch(
+                value: Theme.of(context).brightness == Brightness.dark,
+                onChanged: (value) {
+                  themeManager.changeTheme(value);
+                  setState(() {});
+                })
+          ],
+        ),
+        backColor: Theme.of(context).cardColor);
+    var addRole = buildTile(
+      backColor: Theme.of(context).cardColor,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          edit
+              ? Column(
+                  children: [
+                    SizedBox(
+                        width: 200,
+                        child: GRawInput(
+                          controller: _zhNameController,
+                        )),
+                    SizedBox(
+                        width: 200,
+                        child: GRawInput(
+                          controller: _enNameController,
+                        ))
+                  ],
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '全部角色',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    GSelectButton(
+                        value: '',
+                        onChanged: (value) {
+                          setState(() {});
+                        },
+                        items: roleData.roles.map((e) => e.zhName).toList()),
+                  ],
+                ),
+          const SizedBox(width: 20),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: GRawButton(
+                onPressed: () async {
+                  if (edit) {
+                    if (_enNameController.text.isEmpty ||
+                        _zhNameController.text.isEmpty) {
+                      edit = !edit;
+                      setState(() {});
+                      return;
+                    }
+                    roleData.addRole(Role(
+                        zhName: _zhNameController.text,
+                        enName: _enNameController.text));
+                    await roleData.updateVoice();
+                  }
+                  edit = !edit;
+                  setState(() {});
+                },
+                color: edit
+                    ? Colors.amberAccent.withOpacity(0.25)
+                    : Colors.blueAccent.withOpacity(0.25),
+                child: Text(
+                  edit ? '添加' : '添加新角色',
+                  style: Theme.of(context).textTheme.button,
+                )),
+          )
+        ],
+      ),
+    );
+    var updateAll = GRawButton(
+      width: 500,
+      height: 40,
+      elevation: 0.8,
+      color: Theme.of(context).cardColor,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Colors.black.withOpacity(0.25)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      onPressed: () async {
+        await roleData.updateAllVoice();
+      },
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          '更新所有角色语音',
+          style: Theme.of(context).textTheme.button,
+        ),
+      ),
+    );
     return GScaffold(
         content: Center(
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            buildTile(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '深色模式',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    GSwitch(
-                        value: Theme.of(context).brightness == Brightness.dark,
-                        onChanged: (value) {
-                          themeManager.changeTheme(value);
-                          setState(() {});
-                        })
-                  ],
-                ),
-                backColor: Colors.white),
+            dark,
             const SizedBox(
               height: 10,
             ),
-            buildTile(
-              backColor: Colors.white,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  edit
-                      ? Column(
-                          children: [
-                            SizedBox(
-                                width: 200,
-                                child: GRawInput(
-                                  controller: _zhNameController,
-                                )),
-                            SizedBox(
-                                width: 200,
-                                child: GRawInput(
-                                  controller: _enNameController,
-                                ))
-                          ],
-                        )
-                      : Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '全部角色',
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
-                            const SizedBox(
-                              width: 20,
-                            ),
-                            GSelectButton(
-                                value: '',
-                                onChanged: (value) {
-                                  setState(() {});
-                                },
-                                items: roleData.roles
-                                    .map((e) => e.zhName)
-                                    .toList()),
-                          ],
-                        ),
-                  const SizedBox(width: 20),
-                  Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: GRawButton(
-                        onPressed: () async {
-                          if (edit) {
-                            if (_enNameController.text.isEmpty ||
-                                _zhNameController.text.isEmpty) {
-                              edit = !edit;
-                              setState(() {});
-                              return;
-                            }
-                            roleData.addRole(Role(
-                                zhName: _zhNameController.text,
-                                enName: _enNameController.text));
-                            await roleData.updateVoice();
-                          }
-                          edit = !edit;
-                          setState(() {});
-                        },
-                        color: edit
-                            ? Colors.amberAccent.withOpacity(0.25)
-                            : Colors.blueAccent.withOpacity(0.25),
-                        child: Text(
-                          edit ? '添加' : '添加新角色',
-                          style: Theme.of(context).textTheme.button,
-                        )),
-                  )
-                ],
-              ),
-            ),
+            addRole,
             const SizedBox(
               height: 10,
             ),
-            GRawButton(
-              width: 500,
-              height: 40,
-              elevation: 0.8,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.black.withOpacity(0.25)),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              onPressed: () async {
-                await roleData.updateAllVoice();
-              },
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '更新所有角色语音',
-                  style: Theme.of(context).textTheme.button,
-                ),
-              ),
-            )
+            updateAll
           ],
         ),
       ),
