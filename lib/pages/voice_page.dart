@@ -27,9 +27,11 @@ class VoicePage extends StatefulWidget {
 }
 
 class _VoicePageState extends State<VoicePage> {
+  //选择角色下标
   int get _selectRole =>
       _voices.indexWhere((element) => element.name == mainfestModel.name);
 
+//选择语言
   Language _selectLan = Language.zh;
 
   int _selectTitle(int cindex, int index) =>
@@ -44,6 +46,8 @@ class _VoicePageState extends State<VoicePage> {
   final TextEditingController _programLanEditor = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final player = AudioPlayer();
+
+  //输入框长度
   final double inputWidth = 500;
   final double titleWidth = 100;
 
@@ -537,7 +541,12 @@ class _VoicePageState extends State<VoicePage> {
     var jsonPath = '$generatePath/manifest.json';
     var manifest = jsonEncode(mainfestModel);
     await File(jsonPath).writeAsString(manifest);
-    print(jsonPath);
+    if (kDebugMode) {
+      print(generatePath);
+    } else {
+      BotToast.showText(
+          text: '生成文件目录为$generatePath', duration: const Duration(seconds: 5));
+    }
   }
 
   Future download(String api, String path) async {
