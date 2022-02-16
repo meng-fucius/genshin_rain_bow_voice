@@ -30,7 +30,6 @@ dependencies:
   flutter:
     sdk: flutter
   goose_ui:
-    path: ../goose_ui/packages/goose_ui
   animations: ^2.0.2
   #音频播放
   just_audio: ^0.9.19

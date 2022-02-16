@@ -278,9 +278,9 @@ packages:
   goose_ui:
     dependency: "direct main"
     description:
-      path: "../goose_ui/packages/goose_ui"
-      relative: true
-    source: path
+      name: goose_ui
+      url: "https://pub.flutter-io.cn"
+    source: hosted
     version: "0.0.1"
   graphs:
     dependency: transitive
