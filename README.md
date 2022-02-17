@@ -3,13 +3,13 @@
 
 关于彩虹屁插件使用方法请参考：
 
--[RAINBOW FART](https://github.com/SaekiRaku/vscode-rainbow-fart)
+- vscode [RAINBOW FART](https://github.com/SaekiRaku/vscode-rainbow-fart)
 
--[INTELLIJ RAINBOW FART](https://github.com/izhangzhihao/intellij-rainbow-fart)
+- idea [INTELLIJ RAINBOW FART](https://github.com/izhangzhihao/intellij-rainbow-fart)
 
 
 # 下载
--[release](https://github.com/meng-fucius/genshin_rain_bow_voice/releases)
+-[release](https://github.com/meng-fucius/genshin_rain_bow_voice/releases) 若出现无法打开软件的问题，请使用别的解压缩软件解压，例如 the Unarchiver
 
 # 关于项目
 -[goose_ui](https://github.com/goose-kit/goose_ui) goose_ui是适用于flutter桌面端开发的ui库，本项目依赖于此ui库开发
