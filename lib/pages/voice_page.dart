@@ -1,7 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:bot_toast/bot_toast.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:goose_ui/goose_ui.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:provider/provider.dart';
 import 'package:rain_bow_genshin_voices/models/mainfest_model.dart';
 import 'package:rain_bow_genshin_voices/models/voice_info_model.dart';
@@ -9,6 +16,8 @@ import 'package:rain_bow_genshin_voices/providers/role_data.dart';
 import 'package:rain_bow_genshin_voices/tools/enum.dart';
 import 'package:rain_bow_genshin_voices/tools/extension/list_ext.dart';
 import 'package:rain_bow_genshin_voices/tools/user_map.dart';
+
+import '../tools/const.dart';
 
 class VoicePage extends StatefulWidget {
   const VoicePage({Key? key}) : super(key: key);
@@ -18,9 +27,11 @@ class VoicePage extends StatefulWidget {
 }
 
 class _VoicePageState extends State<VoicePage> {
+  //选择角色下标
   int get _selectRole =>
       _voices.indexWhere((element) => element.name == mainfestModel.name);
 
+//选择语言
   Language _selectLan = Language.zh;
 
   int _selectTitle(int cindex, int index) =>
@@ -35,6 +46,8 @@ class _VoicePageState extends State<VoicePage> {
   final TextEditingController _programLanEditor = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final player = AudioPlayer();
+
+  //输入框长度
   final double inputWidth = 500;
   final double titleWidth = 100;
 
@@ -98,7 +111,9 @@ class _VoicePageState extends State<VoicePage> {
             },
             value: _selectRole == -1 ? '选择角色' : _voices[_selectRole].name,
             onChanged: (value) {
+              mainfestModel = MainfestModel.init();
               mainfestModel.name = value;
+              mainfestModel.avatar = _voices[_selectRole].avatar;
               setState(() {});
             },
             items: _voices.map((e) => e.name).toList()),
@@ -123,7 +138,9 @@ class _VoicePageState extends State<VoicePage> {
         GRawButton(
             width: 100,
             color: Colors.green.shade50,
-            onPressed: () {},
+            onPressed: () async {
+              await _generate();
+            },
             shape: const StadiumBorder(),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -483,5 +500,64 @@ class _VoicePageState extends State<VoicePage> {
           ),
       ],
     );
+  }
+
+  Future _generate() async {
+    if (_selectRole == -1) {
+      BotToast.showText(text: '未选择角色');
+      return;
+    }
+    //生成文件根目录
+    var root = await path_provider.getDownloadsDirectory();
+    var rootPath = root!.path;
+    //文件路径
+    String generatePath;
+    if (Platform.isWindows) {
+      generatePath =
+          '$rootPath\\${_voices[_selectRole].enName}-${mainfestModel.version.isEmpty ? 0.01 : mainfestModel.version}';
+    } else {
+      generatePath =
+          '$rootPath/${_voices[_selectRole].enName}-${mainfestModel.version.isEmpty ? 0.01 : mainfestModel.version}';
+    }
+    var file = Directory(generatePath);
+    //检测是否存在文件夹
+    var exist = await file.exists();
+    if (!exist) {
+      file.create();
+    }
+    var avatarName = '${_voices[_selectRole].enName}.png';
+    await download(mainfestModel.avatar, '$generatePath/$avatarName');
+    await Future.delayed(const Duration(milliseconds: delay));
+    mainfestModel.avatar = avatarName;
+    for (var i = 0; i < mainfestModel.contributes.length; i++) {
+      for (var j = 0; j < mainfestModel.contributes[i].voices.length; j++) {
+        var voiceName = '${_voices[_selectRole].enName}-$i$j.mp3';
+        await download(
+            mainfestModel.contributes[i].voices[j], '$generatePath/$voiceName');
+        mainfestModel.contributes[i].voices[j] = voiceName;
+        await Future.delayed(const Duration(milliseconds: delay));
+      }
+    }
+    var jsonPath = '$generatePath/manifest.json';
+    var manifest = jsonEncode(mainfestModel);
+    await File(jsonPath).writeAsString(manifest);
+    if (kDebugMode) {
+      print(generatePath);
+    } else {
+      BotToast.showText(
+          text: '生成文件目录为$generatePath', duration: const Duration(seconds: 5));
+    }
+  }
+
+  Future download(String api, String path) async {
+    try {
+      await Dio().download(api, path);
+    } catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      } else {
+        BotToast.showText(text: '下载错误');
+      }
+    }
   }
 }
