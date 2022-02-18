@@ -18,7 +18,7 @@ void main() async {
   await windowManager.ensureInitialized();
   windowManager.waitUntilReadyToShow().then((_) async {
     // Hide window title bar
-    await windowManager.setTitleBarStyle('hidden');
+    // await windowManager.setTitleBarStyle('hidden');
     await windowManager.setSize(const Size(1080, 720));
     await windowManager.center();
     await windowManager.show();
@@ -57,7 +57,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with WindowListener {
-  int _currentIndex = 0;
+  int _currentIndex = 1;
 
   final List<GAppMenuItem> _menus = [
     GAppMenuItem(

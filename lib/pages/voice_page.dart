@@ -487,6 +487,7 @@ class _VoicePageState extends State<VoicePage> {
                         .titles[_selectTitle(cindex, index)]
                         .voices[_selectLan.index]);
                     await player.play();
+                    Future.delayed(player.duration!).then((value) => player.stop());
                   },
                   icon: const Icon(Icons.volume_up)),
               IconButton(
